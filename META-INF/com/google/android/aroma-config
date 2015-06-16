@@ -1,0 +1,551 @@
+﻿##
+# AROMA Installer 3.00 - AROMA Installer Configuration
+#       (c) 2011-2012 by Ahmad Amarullah
+#           amarullz - xda-developers
+#           http://www.amarullz.com/
+#
+#       Binary Version  : 3.00
+#       Binary Codename : Flamboyan
+##
+#ini_set("force_colorspace","bgra");
+
+#ini_set("force_colorspace","argb");
+
+# Forcing Device Pixelate Size
+# default: floor( min( width, height ) / 160 )
+#
+# Usefull for tablet device, if interface was too big, you can
+# force dp size for smaller UI size.
+#
+
+setvar("preset_version","1");
+setvar("zaroma","/data/media/0/zombi/preset/previous");
+
+resexec("exec/zombi_init.sh", "previous");
+
+ini_set("dp","4");
+theme("zombipop");
+#
+
+ini_set("rom_name",              "ZOMBi-POP 5.1.1 RC1");
+ini_set("rom_version",           "Lollipop-5.1.1-OMNI-DEODEX");
+ini_set("rom_author",            "sbdags/lj50036/hardslog/ikkeT");
+ini_set("rom_device",            "Asus Transformer");
+ini_set("rom_date",              "JUNE-15-2015");
+
+splash(
+   4000,
+   "splash"
+);
+
+fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "10" );
+fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "11" );
+
+writetmpfile("device.prop","device="+sysprop("ro.product.model")+"\n");
+
+# Device Choice
+form(
+  "DEVICE SELECTION",
+  "Please choose your device : "+sysprop("ro.product.model"),
+  "@confirm",
+  "device.prop",
+  "device","Device Selection","","group",
+  "TF700T","Asus Transformer Infinity TF700T","","select",
+  "TF201T","Asus Transformer Prime TF201T","","select",
+  "TF300T","Asus Transformer Pad TF300T","","select"
+
+);
+write(getvar("zaroma")+"/device.prop",readtmpfile("device.prop"));
+
+if
+	file_getprop("/tmp/aroma-data/device.prop","device") != "TF700T"
+then
+	fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "9" );
+	fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "10" );
+else
+	fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "11" );
+	fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "12" );
+endif;
+
+menubox(
+  "AROMA THEME",
+  "Please touch a theme for the installer:",
+  "@confirm",
+  "theme.prop",
+  "ZOMBi-POP Theme","Red","@update",
+  "MATERIAL Theme","Green","@update",
+  "ZOMBi-X Theme","Red","@update",
+  "CROMB-X 7 Theme","Purple","@update",
+  "CROMBi-kk Theme","Dark Theme","@update",
+  "CROMi-X Theme","Retro Nostalgia","@update"
+
+);
+if
+    file_getprop("/tmp/aroma-data/theme.prop","selected") == "2"
+then
+    theme("material_green");
+endif;
+if
+    file_getprop("/tmp/aroma-data/theme.prop","selected") == "3"
+then
+    theme("zombix");
+endif;
+if
+    file_getprop("/tmp/aroma-data/theme.prop","selected") == "4"
+then
+    theme("cromix2");
+endif;
+if
+    file_getprop("/tmp/aroma-data/theme.prop","selected") == "5"
+then
+    theme("crombikk");
+endif;
+if
+    file_getprop("/tmp/aroma-data/theme.prop","selected") == "6"
+then
+    theme("cromix");
+endif;
+
+viewbox(
+    "WELCOME",
+    "You are about to flash <b>"+ini_get("rom_name")+
+	"</b> for the <b>"+sysprop("ro.product.model")+" ("+sysprop("ro.product.name")+"-"+sysprop("ro.board.platform")+"-"+sysprop("ro.product.device")+")</b>.\n\n"+
+    
+      "VERSION\t\t\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "AUTHOR \t\t\t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
+	  "DEVICES \t\t\t: <b><#selectbg_g>"+ini_get("rom_device")+"</#></b>\n"+
+      "RELEASED\t\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n"+
+	  
+	  "MODEL\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.model")+"</#></b>\n"+
+      "NAME\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.name")+"</#></b>\n"+
+      "DEVICE\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n"+
+      "BOARD\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.board")+"</#></b>\n"+
+      "PLATFORM\t\t: <b><#selectbg_g>"+sysprop("ro.board.platform")+"</#></b>\n"+
+      "MANUFACTURER\t: <b><#selectbg_g>"+sysprop("ro.product.manufacturer")+"</#></b>\n"+
+      "CPU\t\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.cpu.abi")+"</#></b>\n\n"+
+      "SYSTEM Size\t\t: <b><#selectbg_g>"+getdisksize("/system","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/system","m")+" MB</#></b>\n\n"+
+      "DATA Size\t\t\t: <b><#selectbg_g>"+getdisksize("/data","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/data","m")+" MB</#></b>\n\n"+
+      "SDCARD Size\t\t: <b><#selectbg_g>"+getdisksize("/external_sdcard","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/external_sdcard","m")+" MB</#></b>\n\n"+
+	
+    "Press <b>Next</b> to Continue the Installation...\n",
+    "@welcome"
+);
+
+# Changelog
+textbox(
+  "CHANGELOG INFO",
+  "Changelog",
+  "@update",
+  resread("changelog.txt")
+);
+
+# Offer Auto Install options
+form(
+	"Install using preconfigured options or choose yourself",
+	"CUSTOM / SBDAGS / PURE OMNI / PREVIOUS INSTALLATION",
+	"@personalize",
+	"autoinstall.prop",
+
+	"preset","Choose the type of installation","","group",
+	"custom","I want to choose the options","Defaults to sbdags best","select.selected",
+	"sbdags","Auto-install sbdags' best options - Internal Only","_that kernel + DPI + fastest tweaks + F2FS or EXT4","select",
+	"omni","Auto-install Omni stock with no tweaks - Internal Only","Omni kernel + min Gapps + F2FS or EXT4","select",
+	"previous","Auto-install Previous settings","Reinstall using the last saved config + Internal / ROM2SD / DATA2SD + F2FS or EXT4","select",
+	"expert","Auto-load Previous settings","But let me choose the options - good for changing kernels or tweaks","select"
+
+	);
+
+# Previous or Expert Installation
+if
+	file_getprop("/tmp/aroma-data/autoinstall.prop","preset") == "previous" ||
+	file_getprop("/tmp/aroma-data/autoinstall.prop","preset") == "expert"
+then
+	setvar("preset_version_probe",read(getvar("zaroma")+"/version.txt"));
+	if
+		getvar("preset_version_probe")!=getvar("preset_version")
+	then
+		alert("ZOMBi-POP Installation","There is no previous installtion detected. Reverting to custom so one can be saved.","@alert");
+		writetmpfile("autoinstall.prop","preset=custom\n");
+	else
+		writetmpfile("wipe.prop",read(getvar("zaroma")+"/wipe.prop"));
+		writetmpfile("kernel.prop",read(getvar("zaroma")+"/kernel.prop"));
+		writetmpfile("that.prop",read(getvar("zaroma")+"/that.prop"));
+		writetmpfile("cpu.prop",read(getvar("zaroma")+"/cpu.prop"));
+		writetmpfile("journal.prop",read(getvar("zaroma")+"/journal.prop"));
+		writetmpfile("dpi.prop",read(getvar("zaroma")+"/dpi.prop"));
+		writetmpfile("res.prop",read(getvar("zaroma")+"/res.prop"));
+		writetmpfile("boot.prop",read(getvar("zaroma")+"/boot.prop"));
+		writetmpfile("launcher.prop",read(getvar("zaroma")+"/launcher.prop"));
+		writetmpfile("gappops.prop",read(getvar("zaroma")+"/gappops.prop"));
+		writetmpfile("google.prop",read(getvar("zaroma")+"/google.prop"));
+		writetmpfile("misc.prop",read(getvar("zaroma")+"/misc.prop"));
+		writetmpfile("browser.prop",read(getvar("zaroma")+"/browser.prop"));
+		writetmpfile("tweak.prop",read(getvar("zaroma")+"/tweak.prop"));
+	endif;
+endif;
+
+# Expert Previous Installation
+if
+	file_getprop("/tmp/aroma-data/autoinstall.prop","preset") == "expert"
+then
+	writetmpfile("autoinstall.prop","preset=custom\n");
+endif;
+
+# Custom Install
+if
+	file_getprop("/tmp/aroma-data/autoinstall.prop","preset") == "custom"
+then
+
+# Flash Options
+menubox(
+  "PRE-FLASH OPTIONS",
+  "Please select:",
+  "@confirm",
+  "wipe.prop",
+  "Install with Wipe of Dalvik Cache and Cache","RECOMMENDED","@update",
+  "Install with Wipe of only Cache","","@alert"
+
+);
+write(getvar("zaroma")+"/wipe.prop",readtmpfile("wipe.prop"));
+
+# Kernels
+selectbox(
+  "KERNELS",
+  "Choose your options!",
+  "@personalize",
+  "kernel.prop",
+
+  "TF700 KERNELS", "", 2,
+  "Grimlock v5.1.1 Omni Kernel","OC & Tweaked for performance. By hardslog",0,
+  "Grimlock Lite v5.1.1  Omni Kernel","By hardslog",0,
+  "Omni kernel v2","By lj50036/sbdags/hardslog",0,
+  "_that Omni kernel v11.5","OC & Tweaked for performance By _that/sbdags",1,
+  "Do Not Flash a Kernel","Only use this if you are flashing a kernel later",0,
+
+  "Data2SD/Rom2SD - Must have EXT4 or F2FS partitions on MicroSD", "", 2,
+  "Install INTERNAL ZOMBi-POP","Install /data & /system internally",1,
+  "Install DATA2SD","Install /data to MicroSD",0,
+  "Install ROM2SD","Install /data & /system to microSD - allow dual booting ROMs",0
+
+);
+write(getvar("zaroma")+"/kernel.prop",readtmpfile("kernel.prop"));
+
+# Install _that kernel to internal options
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
+then
+	form(
+	"Upgrade Internal CROMi-X ROM to _thatv11 Kernel?",
+	"Select Yes if you are running CROMi-X on internal and not on _that v11 kernel",
+	"@personalize",
+	"that.prop",
+
+	"upgrade","Upgrade Internal Kernel for ROM2SD?","","group",
+	"yes","YES Upgrade my internal CROMi-X to _thatv11","","select",
+	"no","NO I use CROMbi / ZOMBi compatible internal","","select.selected"
+	  
+	);
+	write(getvar("zaroma")+"/that.prop",readtmpfile("that.prop"));
+
+endif;
+
+# _that kernel CPU frequency options
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"
+then
+	form(
+	"CPU FREQUENCIES",
+	"Select Performance modes & Enable OC",
+	"@personalize",
+	"cpu.prop",
+	
+	"performance","Performance Mode","","group",
+	"p1800","1.8GHz","Requires Enable Overclocking","select.selected",
+	"p1700","1.7GHz","","select",
+	"p1600","1.6Hz","","select",
+	"p1500","1.5GHz","","select",
+	"p1400","1.4GHz","","select",
+	"p1300","1.3GHz","","select",
+	
+	"oc","Overclocking","","group",
+	"poc","Enable Overclocking","","check.checked"
+	  
+	);
+	write(getvar("zaroma")+"/cpu.prop",readtmpfile("cpu.prop"));
+
+endif;
+
+# F2FS & Journaling
+form(
+  "F2FS / DATA JOURNALING",
+  "Must Choose One!",
+  "@personalize",
+  "journal.prop",
+
+  "journal","File System Tweaks","","group",
+  "f2fs","F2FS User","Data Journaling not required for F2FS","select.selected",
+  "djon","Enable Data Journaling","Default - Adds lag but prevents data loss if there is an unclean shutdown","select",
+  "djoff", "Disable Data Journaling","WARNING : Can cause data corruption! Don't power off suddenly","select"
+
+);
+write(getvar("zaroma")+"/journal.prop",readtmpfile("journal.prop"));
+
+# DPI
+if
+	file_getprop("/tmp/aroma-data/device.prop","device") != "TF700T"
+then
+# MDPI
+  form(
+  "DPI - DOTS PER INCH",
+  "Must Choose One!",
+  "@personalize",
+  "dpi.prop",
+
+  "DPI","MDPI Modes","","group",
+  "160","160 DPI","Stock Sized Fonts and Icons","select.selected",
+  "148","148 DPI","Medium Small Sized Fonts and Icons","select",
+  "136","136 DPI","Small Sized Fonts and Icons","select",
+  "240","TF700T HDPI Test","Devs only","select"
+
+   );
+else
+# HDPI
+  form(
+  "DPI - DOTS PER INCH",
+  "Must Choose One!",
+  "@personalize",
+  "dpi.prop",
+
+  "DPI","HDPI Modes","","group",
+  "240","240 DPI","Stock Sized Fonts and Icons","select",
+  "224","224 DPI","Medium Sized Fonts and Icons","select",
+  "213","213 DPI","Medium Small Sized Fonts and Icons","select.selected",
+  "200","200 DPI","Small Sized Fonts and Icons","select",
+  "180","180 DPI","Smaller Sized Fonts and Icons","select",
+  "160","160 DPI","Tiny Sized Fonts and Icons","select"
+
+   );
+   write(getvar("zaroma")+"/dpi.prop",readtmpfile("dpi.prop"));
+endif;
+
+if
+	file_getprop("/tmp/aroma-data/device.prop","device") == "TF700T"
+then
+# Screen Res
+form(
+  "SCREEN RESOLUTION",
+  "Must Choose One!",
+  "@personalize",
+  "res.prop",
+  "RES","Resolution Modes","","group",
+  "1920","1920x1200 - TF700T Infinity Res","Sharp - Standard Speed","select.selected",
+  "1760","1760x1100 - Sbdags Speedy Res 1","Sharp - Slightly Faster Speed","select",
+  "1600","1600x1000 - Sbdags Speedy Res 2","Sharpish - Faster Speed","select",
+  "1440","1440x900 - Sbdags Speedy Res 3","Blurryish - Faster Speed","select",
+  "1280","1280x800 - TF201 Prime Res","Blurry - Fastest Speed","select"
+
+);
+else
+  writetmpfile("res.prop","RES=1920"+"\n");
+endif;
+write(getvar("zaroma")+"/res.prop",readtmpfile("res.prop"));
+
+# Boot Animations
+form(
+  "BOOT ANIMATIONS",
+  "Must Choose One!",
+  "@customize",
+  "boot.prop",
+  
+  "boot","Boot Animations","","group",
+  "zombi","ZOMBi-POP","by hardslog","select",
+  "androidl","Google Android-L","","select.selected",
+  "nexusflow","Google Nexus Flow","","select",
+  "unknownp","Unknown Pleasures","","select"
+  
+);
+write(getvar("zaroma")+"/boot.prop",readtmpfile("boot.prop"));
+
+# Launchers
+form(
+  "LAUNCHERS",
+  "Choose as many as you want!",
+  "@customize",
+  "launcher.prop",
+  
+  "launchers","Launcher Home Screens","","group",
+  "omni","Omni Launcher","","check.checked",
+  "gel","Google Experience Launcher","","check",
+  "apex","Apex Launcher","","check",
+  "nova","Nova Launcher","","check"
+  
+);
+write(getvar("zaroma")+"/launcher.prop",readtmpfile("launcher.prop"));
+
+# GAPPS Options
+form(
+  "GOOGLE APPS OPTIONS",
+  "Select the one you want",
+  "@apps",
+  "gappops.prop",
+  "GAPPOPS","GAPPS OPTIONS","","group",
+  "gappssys","Choose GAPPS to /system","Recommended install","select.selected",
+  "gappssysmin","Minimal GAPPS to /system","Only play store and sync services","select",
+  "gappsnone","Install No GAPPS at ALL","You will not have a play store!","select"
+    
+);
+write(getvar("zaroma")+"/gappops.prop",readtmpfile("gappops.prop"));
+
+# Gapps Minimal Install setup google.prop
+if
+	file_getprop("/tmp/aroma-data/gappops.prop","GAPPOPS") == "gappssysmin" ||
+	file_getprop("/tmp/aroma-data/gappops.prop","GAPPOPS") == "gappsnone"
+then
+	writetmpfile("google.prop","livewalls=0");
+	write(getvar("zaroma")+"/google.prop",readtmpfile("google.prop"));
+endif;
+
+# Google Apps
+if
+	file_getprop("/tmp/aroma-data/gappops.prop","GAPPOPS") == "gappssys"
+then
+
+	form(
+	"GOOGLE APPS",
+	"Check the ones you want - Scroll down to see all",
+	"@apps",
+	"google.prop",
+	"GAPPS","System Apps /system/app","","group",
+	"calendar","Google Calendar","Calendar App","check.checked",
+	"now","Google Now and Voice Search","Google Voice","check.checked",
+	"music","Google Music","Music Player","check.checked",
+	"newsweather","Google News and Weather","Create your own news feeds","check.checked",
+	"youtube","YouTube","Watch Videos","check.checked",
+	"maps","Google Maps","Maps and SatNav","check.checked",
+	"mail","Google Mail","Google's Email client","check.checked",
+	"hangouts","Google Hangouts","Google SMS and Talk","check",
+	"tts","Google Text to Speech","Text to Speech output engine","check",
+	"livewalls","Live Wallpapers","Galaxy4, HoloSpiral, Magic Smoke, PhaseBeam and Stock Live Wallpapers","check"
+  
+);
+	write(getvar("zaroma")+"/google.prop",readtmpfile("google.prop"));
+
+endif;
+
+# Miscellaneous Apps
+form(
+  "MISCELLANEOUS APPS",
+  "Check the ones you want - Scroll down to see all",
+  "@apps",
+  "misc.prop",
+  
+  "systemapps","System Apps /system/app","","group",
+  "esfe","ES File Explorer","Best root, file and samba manager","check.checked",
+  "adaway","AdAway App","Control Ads yourself","check.checked",
+  "viper","Viper4Android Music FX","Replaces CM DSP Manager","check.checked",
+  "term","Terminal Emulator","Must have for all android users","check.checked"
+  
+);
+write(getvar("zaroma")+"/misc.prop",readtmpfile("misc.prop"));
+
+# Browsers
+form(
+  "WEB BROWSER APPS",
+  "Check the ones you want",
+  "@apps",
+  "browser.prop",
+  
+  "browsers","Web Browser Apps /system/app","","group",
+  "aospbrowser","Android Stock Browser","AOSP Web Browser","check.checked"
+  
+);
+write(getvar("zaroma")+"/browser.prop",readtmpfile("browser.prop"));
+
+# Check to see if ROM2SD or DATA2SD and disable fsync by default
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "1"
+then
+# Tweaks and Scripts
+form(
+  "TWEAKS AND SCRIPTS",
+  "Check the ones you want",
+  "@personalize",
+  "tweak.prop",
+
+  "Tweaks","Additional Performance Enhancers","","group",
+  "b2r","Browser2Ram","Speeds up Stock, Chrome, Firefox, Dolphin & 15 other Browsers","check.checked",
+  "adblock","Ad Block Hosts File","This installs a file that blocks most Ads","check.checked",
+  "fsync","IO Tweak: Disable fsync","Speeds up IO read/writes to internal SD but can cause data corruption","check.checked",
+  "zipalign","Zip Align Apps and Optimize dabases","Script to optimize /data apk and db files internally","check",
+
+  "BETA Tweaks","Experimental Tweaks for Beta Testing","","group",
+  "gpu1","GPU Rendering: Hardware Rendering","Disable software rendering","check.checked",
+  "gpu2","GPU Rendering: Force GPU Rendering","Force GPU for 2D drawing","check.checked",
+  "cpu","Basic CPU Tweaks","Include sbdags basic cpu speed tweaks","check.checked",
+  "ext","Extended Kernel Tweaks","Include sbdags extended kernel speed tweaks","check.checked"
+
+);
+write(getvar("zaroma")+"/tweak.prop",readtmpfile("tweak.prop"));
+
+else
+
+form(
+  "TWEAKS AND SCRIPTS",
+  "Check the ones you want",
+  "@personalize",
+  "tweak.prop",
+
+  "Tweaks","Additional Performance Enhancers","","group",
+  "b2r","Browser2Ram","Speeds up Stock, Chrome, Firefox, Dolphin & 15 other Browsers","check.checked",
+  "adblock","Ad Block Hosts File","This installs a file that blocks most Ads","check.checked",
+  "fsync","IO Tweak: Disable fsync","Speeds up IO read/writes not recommended for ROM2SD/DATA2SD","check",
+  "zipalign","Zip Align Apps and Optimize dabases","Script to optimize /data apk and db files internally","check",
+
+  "BETA Tweaks","Experimental Tweaks for Beta Testing","","group",
+  "gpu1","GPU Rendering: Hardware Rendering","Disable software rendering","check.checked",
+  "gpu2","GPU Rendering: Force GPU Rendering","Force GPU for 2D drawing","check.checked",
+  "cpu","Basic CPU Tweaks","Include sbdags basic cpu speed tweaks","check.checked",
+  "ext","Extended Kernel Tweaks","Include sbdags extended kernel speed tweaks","check.checked"
+
+);
+write(getvar("zaroma")+"/tweak.prop",readtmpfile("tweak.prop"));
+
+endif;
+endif;
+
+# Write the version of the installer out to /data
+write(getvar("zaroma")+"/version.txt",getvar("preset_version"));
+
+# Finished custom options
+ini_set("text_next", "Install now");
+
+viewbox(
+  "READY TO INSTALL",
+  "You are now ready to begin installation.\n\n"+
+  "Press <b>Install now</b> to start.\n\n"+
+  "If you want to review or change any of your installation settings, press <b>Back</b>.",
+  "@install"
+  
+);
+
+ini_set("text_next", "Next");
+
+install(
+  "INSTALLING",
+  "Installing ZOMBi-POP...\nPlease Wait until it Finishes...",
+  "@install"
+  
+);
+ini_set("text_next", "Finish");
+
+viewbox(
+  "INSTALLATION COMPLETED",
+  "<b><#selectbg_g>Congratulations...</#></b>\n\n"+
+  "ZOMBi-POP has been installed successfully.\n\n"+
+  "Press Finish, Reboot and Inherit!\n\nEnjoy your tablet!",
+  "@info"
+  
+);
