@@ -27,11 +27,11 @@ ini_set("dp","4");
 theme("zombipop");
 #
 
-ini_set("rom_name",              "ZOMBi-POP 5.1.1 RC1");
+ini_set("rom_name",              "ZOMBi-POP 5.1.1 UNI RELEASE CANDIDATE 1");
 ini_set("rom_version",           "Lollipop-5.1.1-OMNI-DEODEX");
-ini_set("rom_author",            "sbdags/lj50036/hardslog/ikkeT");
+ini_set("rom_author",            "sbdags/lj50036/hardslog");
 ini_set("rom_device",            "Asus Transformer");
-ini_set("rom_date",              "JUNE-15-2015");
+ini_set("rom_date",              "July-28-2015");
 
 splash(
    4000,
@@ -42,6 +42,34 @@ fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "10" );
 fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "11" );
 
 writetmpfile("device.prop","device="+sysprop("ro.product.model")+"\n");
+
+viewbox(
+    "WELCOME",
+    "You are about to flash <b>"+ini_get("rom_name")+
+	"</b> for the <b>"+sysprop("ro.product.model")+" ("+sysprop("ro.product.name")+"-"+sysprop("ro.board.platform")+"-"+sysprop("ro.product.device")+")</b>.\n\n"+
+    
+      "VERSION\t\t\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "AUTHOR \t\t\t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
+	  "DEVICES \t\t\t: <b><#selectbg_g>"+ini_get("rom_device")+"</#></b>\n"+
+      "RELEASED\t\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n"+
+	  
+	  "MODEL\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.model")+"</#></b>\n"+
+      "NAME\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.name")+"</#></b>\n"+
+      "DEVICE\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n"+
+      "BOARD\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.board")+"</#></b>\n"+
+      "PLATFORM\t\t: <b><#selectbg_g>"+sysprop("ro.board.platform")+"</#></b>\n"+
+      "MANUFACTURER\t: <b><#selectbg_g>"+sysprop("ro.product.manufacturer")+"</#></b>\n"+
+      "CPU\t\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.cpu.abi")+"</#></b>\n\n"+
+      "SYSTEM Size\t\t: <b><#selectbg_g>"+getdisksize("/system","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/system","m")+" MB</#></b>\n\n"+
+      "DATA Size\t\t: <b><#selectbg_g>"+getdisksize("/data","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/data","m")+" MB</#></b>\n\n"+
+      "SDCARD Size\t\t: <b><#selectbg_g>"+getdisksize("/external_sdcard","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/external_sdcard","m")+" MB</#></b>\n\n"+
+	
+    "Press <b>Next</b> to Continue the Installation...\n",
+    "@welcome"
+);
 
 # Device Choice
 form(
@@ -62,9 +90,6 @@ if
 then
 	fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "9" );
 	fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "10" );
-else
-	fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "11" );
-	fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "12" );
 endif;
 
 menubox(
@@ -105,34 +130,6 @@ if
 then
     theme("cromix");
 endif;
-
-viewbox(
-    "WELCOME",
-    "You are about to flash <b>"+ini_get("rom_name")+
-	"</b> for the <b>"+sysprop("ro.product.model")+" ("+sysprop("ro.product.name")+"-"+sysprop("ro.board.platform")+"-"+sysprop("ro.product.device")+")</b>.\n\n"+
-    
-      "VERSION\t\t\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
-      "AUTHOR \t\t\t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
-	  "DEVICES \t\t\t: <b><#selectbg_g>"+ini_get("rom_device")+"</#></b>\n"+
-      "RELEASED\t\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n"+
-	  
-	  "MODEL\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.model")+"</#></b>\n"+
-      "NAME\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.name")+"</#></b>\n"+
-      "DEVICE\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n"+
-      "BOARD\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.board")+"</#></b>\n"+
-      "PLATFORM\t\t: <b><#selectbg_g>"+sysprop("ro.board.platform")+"</#></b>\n"+
-      "MANUFACTURER\t: <b><#selectbg_g>"+sysprop("ro.product.manufacturer")+"</#></b>\n"+
-      "CPU\t\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.cpu.abi")+"</#></b>\n\n"+
-      "SYSTEM Size\t\t: <b><#selectbg_g>"+getdisksize("/system","m")+" MB</#></b>\n"+
-        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/system","m")+" MB</#></b>\n\n"+
-      "DATA Size\t\t\t: <b><#selectbg_g>"+getdisksize("/data","m")+" MB</#></b>\n"+
-        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/data","m")+" MB</#></b>\n\n"+
-      "SDCARD Size\t\t: <b><#selectbg_g>"+getdisksize("/external_sdcard","m")+" MB</#></b>\n"+
-        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/external_sdcard","m")+" MB</#></b>\n\n"+
-	
-    "Press <b>Next</b> to Continue the Installation...\n",
-    "@welcome"
-);
 
 # Changelog
 textbox(
@@ -218,11 +215,12 @@ selectbox(
   "@personalize",
   "kernel.prop",
 
-  "TF700 KERNELS", "", 2,
+  "KERNELS", "", 2,
   "Grimlock v5.1.1 Omni Kernel","OC & Tweaked for performance. By hardslog",0,
   "Grimlock Lite v5.1.1  Omni Kernel","By hardslog",0,
-  "Omni kernel v2","By lj50036/sbdags/hardslog",0,
-  "_that Omni kernel v11.5","OC & Tweaked for performance By _that/sbdags",1,
+  "Omni kernel v3","By lj50036/sbdags/hardslog",0,
+  "_that Omni kernel v12","OC & Tweaked for performance By _that/sbdags",1,
+  "TF201 inverted kernel","Based of Grimlock for inverted screens",0,
   "Do Not Flash a Kernel","Only use this if you are flashing a kernel later",0,
 
   "Data2SD/Rom2SD - Must have EXT4 or F2FS partitions on MicroSD", "", 2,
@@ -485,7 +483,11 @@ form(
   "gpu1","GPU Rendering: Hardware Rendering","Disable software rendering","check.checked",
   "gpu2","GPU Rendering: Force GPU Rendering","Force GPU for 2D drawing","check.checked",
   "cpu","Basic CPU Tweaks","Include sbdags basic cpu speed tweaks","check.checked",
-  "ext","Extended Kernel Tweaks","Include sbdags extended kernel speed tweaks","check.checked"
+  "ext","Extended Kernel Tweaks","Include sbdags extended kernel speed tweaks","check.checked",
+  
+  "Optional Tweaks","Additional Options for Power Users","","group",
+  "su","Root and Unsecure Kernel","Enable root and make kernel unsecure (Recommended)","check.checked",
+  "dockbatt","Add Dock Battery","Note you can't change the battery icon","check.checked"
 
 );
 write(getvar("zaroma")+"/tweak.prop",readtmpfile("tweak.prop"));
@@ -508,7 +510,11 @@ form(
   "gpu1","GPU Rendering: Hardware Rendering","Disable software rendering","check.checked",
   "gpu2","GPU Rendering: Force GPU Rendering","Force GPU for 2D drawing","check.checked",
   "cpu","Basic CPU Tweaks","Include sbdags basic cpu speed tweaks","check.checked",
-  "ext","Extended Kernel Tweaks","Include sbdags extended kernel speed tweaks","check.checked"
+  "ext","Extended Kernel Tweaks","Include sbdags extended kernel speed tweaks","check.checked",
+  
+  "Optional Tweaks","Additional Options for Power Users","","group",
+  "su","Root and Unsecure Kernel","Enable root and make kernel unsecure","check.checked",
+  "dockbatt","Add Dock Battery","Note you can't change the battery icon","check.checked"
 
 );
 write(getvar("zaroma")+"/tweak.prop",readtmpfile("tweak.prop"));

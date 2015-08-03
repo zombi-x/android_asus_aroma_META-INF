@@ -1,6 +1,6 @@
 # ZOMBi-POP Installer
 set_progress(0.0);
-ui_print("Thank you for installing TF700T ZOMBi-POP 5.1.1!");
+ui_print("Thank you for installing UNIFIED ZOMBi-POP 5.1.1!");
 ui_print("Sit back and relax...");
 ui_print("-----------------------------------------------------");
 ui_print("This will take a few minutes!");
@@ -28,8 +28,6 @@ endif;
 ui_print("Preparing File System.....");
 package_extract_dir("extras/prep", "/tmp");
 set_perm_recursive(0, 0, 0755, 0755, "/tmp");
-
-ui_print("Mounting System.....");
 run_program("/sbin/busybox", "mount", "/system");
 
 # Mount Data2sd
@@ -52,23 +50,31 @@ if
 then
 	# Extract busybox to /system/boot
 	ui_print("----- ROM2SD by _that@xda and sbdags -----");
-	ui_print("Installing Static Busybox for ROM2SD");
+	ui_print(" - Installing Static Busybox for ROM2SD");
 	package_extract_dir("extras/kernel/static_busybox/system", "/system");
 	set_perm(0, 0, 0744, "/system/boot/busybox");
-	# Install _that kernel modules to internal if stock rom upgrade needed
+	# Install _that kernel modules to internal when stock rom upgrade needed
 	if
 		file_getprop("/tmp/aroma-data/that.prop","upgrade") == "yes"
 	then
-		ui_print("_that stock modules copied to Internal ROM");
+		ui_print(" - _that stock modules copied to Internal ROM");
 		delete("/system/lib/modules");
 		package_extract_dir("extras/kernel/thatcm11/system", "/system");
 	endif;
+	# Edit default.prop to ro.secure=0
+	if
+		file_getprop("/tmp/aroma-data/tweak.prop","su") == "0"
+	then
+		package_extract_dir("extras/superuser/preinit", "/system");
+		set_perm(0, 0, 0744, "/system/boot/preinit");
+		set_perm_recursive(0, 0, 0755, 0755, "/system/boot/preinit.d");
+	endif;
 	# _that kernel preinit.cfg setup for ROM2SD
 	if
-		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") != "5"
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") != "6"
 	then
 		# _that10 preinit
-		ui_print("Installing _that10 pre-init config for ROM2SD");
+		ui_print(" - Installing _that10 pre-init config for ROM2SD");
 		package_extract_dir("extras/kernel/rom2sd/system", "/system");
 		package_extract_dir("extras/kernel/preinit", "/system");
 		set_perm(0, 0, 0744, "/system/boot/preinit");
@@ -147,27 +153,28 @@ then
 		endif;
 	endif;
 	# Copy modules from internal kernel install to /tmp
-	ui_print("Copying Wifi/Bluetooth modules for ROM2SD");
+	ui_print(" - Copying Wifi/Bluetooth modules for ROM2SD");
 	package_extract_dir("extras/kernel/rom2sd/modules", "/tmp");
 	set_perm(0, 0, 0755, "/tmp/copy_modules.sh");
 	run_program("/tmp/copy_modules.sh");
 	# Switch TWRP nodes to External for ROM2SD
-	ui_print("Extracting scripts.....");
+	ui_print(" - Extracting node switch script");
 	package_extract_dir("extras/kernel/rom2sd/script", "/tmp");
 	set_perm(0, 0, 0755, "/tmp/dev-rom2sd.sh");
 	run_program("/sbin/umount", "-d", "/system");
 	run_program("/sbin/umount", "-d", "/data");
-	ui_print("Running script for ROM2SD");
+	ui_print(" - Switching device to ROM2SD");
 	run_program("/tmp/dev-rom2sd.sh");
 endif;
 
-# Unmount all partition to prepare for tuning
-unmount("/system");
-unmount("/data");
+# Unmount all partition to prepare for formatting and tuning
+ui_print("Unmounting System and Data partitions.....");
+run_program("/sbin/busybox", "umount", "/data");
+run_program("/sbin/busybox", "umount", "/system");
+
 
 ui_print("Formatting System.....");
 format("ext4", "EMMC", "/dev/block/mmcblk0p1", "0", "/system");
-run_program("/sbin/busybox", "mount", "/system");
 
 # Journaling and Tuning
 if
@@ -191,14 +198,12 @@ run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-o", "+journal_data_writ
 
 # Remount /data
 ui_print("Remounting Data.....");
-	# Attempt to mount /data to ext4
-	#mount("ext4", "EMMC", "/dev/block/mmcblk0p8", "/data");
-# else
-	# Attempt to mount /data to f2fs
-	#mount("f2fs", "EMMC", "/dev/block/mmcblk0p8", "/data");
-run_program("/sbin/mount", "/data");
+run_program("/sbin/busybox", "mount", "/data");
+# Remount /system
+ui_print("Remounting System.....");
+run_program("/sbin/busybox", "mount", "/system");
 
-# Wipe Caches
+# Wipe Cache
 if
     file_getprop("/tmp/aroma-data/wipe.prop","selected") == "1"
 then
@@ -226,18 +231,18 @@ delete_recursive("/data/app/com.google.android.gms-1");
 delete_recursive("/data/app/com.google.android.gms-2");
 
 # Install TF300 system
-if
-	file_getprop("/tmp/aroma-data/device.prop","device") == "TF300T"
+if	file_getprop("/tmp/aroma-data/device.prop","device") == "TF300T"
 then
-	delete_recursive("/system/etc/firmware/touch");
-	delete("/system/etc/firmware/bcm4330.hcd");
-	delete("/system/etc/model_frontal.xml");
-	delete("/system/etc/nvram_4330.txt");
-	delete_recursive("/system/lib/hw");
-	delete("/system/lib/libmllite3050.so");
-	delete("/system/lib/libmlplatform3050.so");
+	#delete_recursive("/system/etc/firmware/touch");
+	#delete("/system/etc/firmware/bcm4330.hcd");
+	#delete("/system/etc/model_frontal.xml");
+	#delete("/system/etc/nvram_4330.txt");
+	#delete_recursive("/system/lib/hw");
+	#delete("/system/lib/libmllite3050.so");
+	#delete("/system/lib/libmlplatform3050.so");
 	delete("/system/etc/firmware/camera/04-RS_M6Mo.bin");
-	package_extract_dir("extras/device/tf300/system", "/system");
+	#package_extract_dir("extras/device/tf300/system", "/system");
+	#package_extract_dir("extras/device/tf301/system", "/system");
 endif;
 
 # Install TF201 system
@@ -245,6 +250,14 @@ if
 	file_getprop("/tmp/aroma-data/device.prop","device") == "TF201T"
 then
 	package_extract_dir("extras/device/tf201/system", "/system");
+	#package_extract_dir("extras/device/tf301/system", "/system");
+endif;
+
+# Install TF700 system
+if
+	file_getprop("/tmp/aroma-data/device.prop","device") == "TF700T"
+then
+	package_extract_dir("extras/device/tf700/system", "/system");
 endif;
 
 # Install Options Chosen
@@ -252,7 +265,7 @@ ui_print("Installing Options.....");
 
 # Install Zombi-POP System Tweaks
 ui_print("Installing ZOMBi-POP System Tweaks.....");
-package_extract_dir("extras/zombipop/tweakzom/system", "/system");
+package_extract_dir("extras/zombipop/tweakszom/system", "/system");
 ui_print(" - ZOMBi-POP Touch Screen Tweaks");
 package_extract_dir("extras/zombipop/build-prop", "/tmp");
 set_perm(0, 0, 0777, "/tmp/zombipop-build-prop.sh");
@@ -265,31 +278,38 @@ if
 then
 	ui_print(" - Grimlock Omni Modded Kernel");
 	package_extract_dir("extras/kernel/grimlock/system", "/system");
-	package_extract_file("grimzombi511.blob", "/dev/block/mmcblk0p4");
+	package_extract_file("extras/kernel/grimlock/grimzombi511.blob", "/dev/block/mmcblk0p4");
 endif;
 if
 	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2"
 then
 	ui_print(" - Grimlock Lite Omni Kernel");
-	package_extract_dir("extras/kernel/grimlock/system", "/system");
-	package_extract_file("grimzombil511.blob", "/dev/block/mmcblk0p4");
+	package_extract_dir("extras/kernel/grimlocklite/system", "/system");
+	package_extract_file("extras/kernel/grimlocklite/grimzombil511.blob", "/dev/block/mmcblk0p4");
 endif;
 if
 	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3"
 then
 	ui_print(" - Omni Kernel");
 	package_extract_dir("extras/kernel/omni/system", "/system");
-	package_extract_file("omni511.blob", "/dev/block/mmcblk0p4");
+	package_extract_file("extras/kernel/omni/omni511.blob", "/dev/block/mmcblk0p4");
 endif;
 if
 	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"
 then
 	ui_print(" - _that Omni Modded Kernel");
 	package_extract_dir("extras/kernel/thatcm11/system", "/system");
-	package_extract_file("bootinit115.blob", "/dev/block/mmcblk0p4");
+	package_extract_file("extras/kernel/thatcm11/that12.blob", "/dev/block/mmcblk0p4");
 endif;
 if
 	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "5"
+then
+	ui_print(" - TF201 Grimlock Inverted Kernel");
+	package_extract_dir("extras/kernel/grimlock/system", "/system");
+	package_extract_file("extras/kernel/grimlock/grimzombi511_inv.blob", "/dev/block/mmcblk0p4");
+endif;
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "6"
 then
 	ui_print(" - No Kernel to Flash");
 endif;
@@ -386,7 +406,7 @@ then
 endif;
 set_perm(0, 0, 0777, "/tmp/res-build-prop.sh");
 
-# If device is TF300 or TF201 then apply the default 99RES then remove it :)
+# When device is TF300 or TF201 apply the default 99RES then remove it :)
 if
 	file_getprop("/tmp/aroma-data/device.prop","device") != "TF700T"
 then
@@ -683,6 +703,22 @@ then
 	package_extract_dir("extras/zombipop/tweaksext/system", "/system");
 endif;
 
+#-- Install SU files --#
+if
+	file_getprop("/tmp/aroma-data/tweak.prop","su") == "1"
+then
+	ui_print(" - Installing SuperSU and Root");
+	package_extract_dir("extras/superuser/system", "/system");
+endif;
+
+#-- Install Dock Battery --#
+if
+	file_getprop("/tmp/aroma-data/tweak.prop","dockbatt") == "1"
+then
+	ui_print(" - Installing Dock Battery Icon");
+	package_extract_dir("extras/dockbatt/system", "/system");
+endif;
+
 #-- DPI --#
 ui_print("Editing build.prop.....");
 run_program ("/tmp/upd-build-prop.sh");
@@ -691,9 +727,6 @@ if
 then
 	run_program ("/tmp/res-build-prop.sh");
 endif;
-
-#-- Install SU files --#
-package_extract_dir("extras/superuser/system", "/system");
 
 #-- Build Sym Links --#
 ui_print("");
@@ -879,20 +912,24 @@ set_metadata("/system/xbin/procrank", "uid", 0, "gid", 0, "mode", 06755, "capabi
 set_metadata("/system/xbin/su", "uid", 0, "gid", 2000, "mode", 04750, "capabilities", 0x0, "selabel", "u:object_r:su_exec:s0");
 
 #-- Finish Installing SU properly --#
-ui_print("Installing SuperSU and Root.....");
-package_extract_dir("extras/superuser/script", "/tmp");
-set_perm(0, 0, 0777, "/tmp/install-su.sh");
-run_program ("/tmp/install-su.sh");
-set_metadata("/system/xbin/su", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-set_metadata("/system/bin/.ext/.su", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-set_metadata("/system/xbin/daemonsu", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-set_metadata("/system/xbin/sugote", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:zygote_exec:s0");
-set_metadata("/system/xbin/supolicy", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-set_metadata("/system/xbin/sugote-mksh", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-set_metadata("/system/etc/install-recovery.sh", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:toolbox_exec:s0");
-set_metadata("/system/etc/.installed_su_daemon", "uid", 0, "gid", 0, "mode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-set_metadata("/system/bin/app_process32_original", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:zygote_exec:s0");
-set_metadata("/system/bin/app_process_init", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+if
+	file_getprop("/tmp/aroma-data/tweak.prop","su") == "1"
+then
+	ui_print("Applying SuperSU and Root Permissions.....");
+	package_extract_dir("extras/superuser/script", "/tmp");
+	set_perm(0, 0, 0777, "/tmp/install-su.sh");
+	run_program ("/tmp/install-su.sh");
+	set_metadata("/system/xbin/su", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+	set_metadata("/system/bin/.ext/.su", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+	set_metadata("/system/xbin/daemonsu", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+	set_metadata("/system/xbin/sugote", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:zygote_exec:s0");
+	set_metadata("/system/xbin/supolicy", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+	set_metadata("/system/xbin/sugote-mksh", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+	set_metadata("/system/etc/install-recovery.sh", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:toolbox_exec:s0");
+	set_metadata("/system/etc/.installed_su_daemon", "uid", 0, "gid", 0, "mode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+	set_metadata("/system/bin/app_process32_original", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:zygote_exec:s0");
+	set_metadata("/system/bin/app_process_init", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
+endif;
 
 set_progress(0.99);
 ui_print("Finalising ROM.....");
@@ -916,6 +953,8 @@ endif;
 if
     file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
 then
+	# Copy single data fstab to /tmp
+	package_extract_dir("extras/kernel/preinit/boot/fstab", "/tmp/fstab");
 	# Extract ramdisk from kernel image to external /system/boot
 	ui_print("Extracting kernel ramdisk for ROM2SD.....");
 	package_extract_dir("extras/kernel/rom2sd/bin", "/tmp");
@@ -927,7 +966,7 @@ then
 	# Copy modules back from /tmp to external /system/lib/modules
 	ui_print("Copy saved internal modules back to ROM2SD.....");
 	run_program("/tmp/copy_modules.sh");
-	# Install _thatv10 stock kernel to internal if stock rom upgrade needed
+	# Install _thatv10 stock kernel to internal when stock rom upgrade needed
 	if
 		file_getprop("/tmp/aroma-data/that.prop","upgrade") == "yes"
 	then
@@ -941,7 +980,7 @@ endif;
 
 #_that init10 preinit scripts
 if
-	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") != "5"
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.1") != "6"
 then
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.2") != "3"
@@ -966,6 +1005,14 @@ then
 				package_extract_dir("extras/kernel/thatcm11/preinit", "/system");
 			endif;
 		endif;
+		# Edit default.prop to ro.secure=0
+		if
+			file_getprop("/tmp/aroma-data/tweak.prop","su") == "0"
+		then
+			package_extract_dir("extras/superuser/preinit", "/system");
+		endif;
+		# Copy single data fstab to ramdisk on sdext card
+		package_extract_dir("extras/kernel/preinit/boot/fstab", "/system/boot/ramdisk");
 		package_extract_dir("extras/kernel/preinit", "/system");
 		set_perm(0, 0, 0744, "/system/boot/preinit");
 		set_perm_recursive(0, 0, 0755, 0755, "/system/boot/preinit.d");
@@ -1043,8 +1090,7 @@ then
 	endif;
 endif;
 
-unmount("/data");
-unmount("/system");
+run_program("/sbin/busybox", "umount", "/system");
 set_progress(1.0);
 ui_print("All Done!");
 ui_print("Enjoy ZOMBi-POP!");
